@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Python Micropip Example</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="." />
+    <meta property="og:title" content="Python Micropip Example" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+    <style>
+      body, button {
+        font-size: 300%;
+      }
+      #pythonCode, #status {
+        font-size: 200%;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="pythonCode" cols=80 rows=10>
+import micropip
+await micropip.install("cowsay")
+import cowsay
+cowsay.cow('Hello Exchange.Js and Rubyists')
+cowsay.get_output_string('cow',"Oops here's the string, Hi!")
+</textarea><br>
+    <button id="example" onclick="evalIt()">Eval!</button>
+    <pre><div id="status">Loading</div></pre>
+    <script type="text/javascript">
+      var pyodide;
+      function status(x) {
+          document.getElementById("status").innerText = x;
+      }
+      function getCode() {
+	  return document.getElementById("pythonCode").value;
+      }
+      async function evalIt(){
+	  status("Evaling Code");
+	  let res = await pyodide.runPythonAsync(getCode());
+          console.log( res );
+	  status( res );
+      }
+      window.addEventListener("load", function() {
+          status("Loading Pyodide, please wait");
+	  loadPyodide().then( p => {
+              pyodide = p;
+              status("Pyodide loaded. Loading Micropip.");
+              pyodide.loadPackage(["micropip"]).then( () => {
+                  status("Micropip is loaded! Eval away!");
+	      });
+          });
+      }, false);
+    </script>
+  </body>
+</html>

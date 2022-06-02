@@ -63,10 +63,10 @@ def wrap_io(f):
     return res
 
 #  josephernest  https://github.com/pyodide/pyodide/issues/679#issuecomment-637519913
-def load_file_from_browser():
-    ''' saves the browser content as input_filename '''
+def load_file_from_browser(output_filename):
+    ''' saves the browser content as output_filename '''
     from js import content
-    with open(input_filename,"wb") as fd:
+    with open(output_filename,"wb") as fd:
         return fd.write(content.to_bytes())
 
 def get_file(filename):

@@ -24,6 +24,8 @@
     <button onclick="getImageInfoDict()">Image Info JS</button><br>
     <button onclick="downloadImage()">Download Image</button><br>
     <button onclick="downloadSmallImage()">Download Small Image</button><br>
+    <input name="upload" id="upload" type="file"><br>
+
     <div id="images"></div>
     <script type="text/javascript">
       var pyodide;
@@ -82,6 +84,21 @@
           img.src = url;
           document.getElementById("images").appendChild(img);
       }
+      function uploadListener(e) {
+          const file = e.target.files[0];
+          console.log(file);
+          loadFile(file);
+      }
+      function loadFile(file) {
+          // josephernest https://github.com/pyodide/pyodide/issues/679#issuecomment-637519913
+          var reader = new FileReader();
+          reader.readAsArrayBuffer(file);
+          reader.onload = evt => { 
+              content = evt.target.result; 
+              status("Bytes written: "+pkg.load_file_from_browser("/pic.png"));
+          }
+      }
+
       async function loadScriptPy() {
           await pyodide.runPythonAsync(`
     from pyodide.http import pyfetch
@@ -99,6 +116,7 @@
       
       window.addEventListener("load", function() {
           status("Loading Pyodide, please wait");
+          document.getElementById("upload").onchange = uploadListener;
 	  loadPyodide().then( p => {
               pyodide = p;
               status("Pyodide loaded. Loading Micropip.");

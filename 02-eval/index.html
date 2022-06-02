@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Python Eval Example</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="." />
+    <meta property="og:title" content="Python Eval Example" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+    <style>
+      body, button {
+        font-size: 300%;
+      }
+      #pythonCode, #status {
+        font-size: 200%;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="pythonCode" cols=80 rows=10>
+import sys
+out = []
+out += [sys.version]
+out += [sys.byteorder]
+out += [sys.copyright]
+"\n".join(out)</textarea><br>
+    <button id="example" onclick="evalIt()">Eval!</button>
+    <div id="status">Loading</div>
+    <script type="text/javascript">
+      var pyodide;
+      function status(x) {
+          document.getElementById("status").innerText = x;
+      }
+      function getCode() {
+	  return document.getElementById("pythonCode").value;
+      }
+      async function evalIt(){
+	  status("Evaling Code");
+	  let res = pyodide.runPython(getCode());
+          console.log( res );
+	  status( res );
+      }
+      window.addEventListener("load", function() {
+          status("Loading Pyodide, please wait");
+	  loadPyodide().then( p => {
+              pyodide = p;
+              status("Pyodide loaded");
+          });
+      }, false);
+    </script>
+  </body>
+</html>
