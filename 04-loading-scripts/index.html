@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Loading a script example</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="." />
+    <meta property="og:title" content="Loading a script example" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+    <style>
+      body, button {
+        font-size: 200%;
+      }
+      #pythonCode, #status {
+        font-size: 200%;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <textarea id="pythonCode" cols=80 rows=10></textarea><br> 
+    <button id="example" onclick="evalIt()">Eval!</button><br> -->
+    <pre><div id="status">Loading</div></pre>
+    <button onclick="retrieveImage()">Get Image</button><br>
+    <button onclick="getImageInfo()">Image Info</button><br>
+    <button onclick="downloadImage()">Download Image</button><br>
+    <button onclick="downloadSmallImage()">Download Small Image</button><br>
+    <div id="images"></div>
+    <script type="text/javascript">
+      var pyodide;
+      var pkg;
+      function status(x) {
+          document.getElementById("status").innerText = x;
+      }
+      function getCode() {
+	  return document.getElementById("pythonCode").value;
+      }
+      async function evalIt(){
+	  status("Evaling Code");
+	  let res = await pyodide.runPythonAsync(getCode());
+          console.log( res );
+	  status( res );
+      }
+      async function retrieveImage() {
+	  status("Retrieving Image");
+          await pkg.save_binary_url("./wilderness-canvas.png","/pic.png");
+          status("Image saved");
+      }
+      function getImageInfo() {
+          status(pkg.get_image_info("/pic.png"));
+      }
+      function downloadImage() {
+          array = pkg.get_file("/pic.png");
+          downloadArray(array,"pic.png");
+          // showImage(array);
+      }
+      function downloadSmallImage() {
+          pkg.resize_image("/pic.png",256,256,"/small.png");
+          array = pkg.get_file("/small.png");
+          downloadArray(array,"small.png");
+          showImage(array);
+      }
+      function downloadArray(array,filename) {
+          var blob = new Blob([array], {type: 'application/octet-stream'});
+          var url = window.URL.createObjectURL(blob);
+          // This part is dumb, why javascript do I have to do this?
+          var anchor = window.document.createElement('a');
+          anchor.href = url;
+          anchor.download = filename?filename:"output.sav";
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);          
+      }
+      function showImage(array) {
+          var blob = new Blob([array], {type: 'application/octet-stream'});
+          var url = window.URL.createObjectURL(blob);
+          var img = window.document.createElement('img');
+          img.src = url;
+          document.getElementById("images").appendChild(img);
+      }
+      async function loadScriptPy() {
+          await pyodide.runPythonAsync(`
+    from pyodide.http import pyfetch
+    response = await pyfetch("./script.py")
+    with open("script.py", "wb") as f:
+        f.write(await response.bytes())
+`
+          )
+          status("Loading python script ");
+          pkg = pyodide.pyimport("script");
+          status("Installing Python modules");
+          await pkg.install_deps();
+          status("Python Modules Installed: READY TO GO!");
+      }
+      
+      window.addEventListener("load", function() {
+          status("Loading Pyodide, please wait");
+	  loadPyodide().then( p => {
+              pyodide = p;
+              status("Pyodide loaded. Loading Micropip.");
+              pyodide.loadPackage(["micropip"]).then( () => {
+                  status("Micropip is loaded! Eval away!");
+                  return loadScriptPy();
+	      });
+          });
+      }, false);
+    </script>
+  </body>
+</html>
