@@ -28,6 +28,17 @@ def get_image_info(pic_name):
     image = Image.open(pic_name)
     return f"{image.format} {image.size} {image.mode}"
 
+def get_image_info_dict(pic_name):
+    from PIL import Image
+    image = Image.open(pic_name)
+    info = {
+        "format":image.format,
+        "size":image.size,
+        "mode":image.mode
+    }
+    return to_js( info )
+
+
 def resize_image(input_file, width, height, output_file):
     from PIL import Image
     image = Image.open(input_file)

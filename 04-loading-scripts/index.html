@@ -20,7 +20,8 @@
     <button id="example" onclick="evalIt()">Eval!</button><br> -->
     <pre><div id="status">Loading</div></pre>
     <button onclick="retrieveImage()">Get Image</button><br>
-    <button onclick="getImageInfo()">Image Info</button><br>
+    <button onclick="getImageInfo()">Image Info</button>
+    <button onclick="getImageInfoDict()">Image Info JS</button><br>
     <button onclick="downloadImage()">Download Image</button><br>
     <button onclick="downloadSmallImage()">Download Small Image</button><br>
     <div id="images"></div>
@@ -28,6 +29,7 @@
       var pyodide;
       var pkg;
       function status(x) {
+          console.log(x);
           document.getElementById("status").innerText = x;
       }
       function getCode() {
@@ -46,6 +48,10 @@
       }
       function getImageInfo() {
           status(pkg.get_image_info("/pic.png"));
+      }
+      function getImageInfoDict() {
+          // Returns a Map, use Object.fromEntries to get an Object
+          status(pkg.get_image_info_dict("/pic.png"));
       }
       function downloadImage() {
           array = pkg.get_file("/pic.png");
